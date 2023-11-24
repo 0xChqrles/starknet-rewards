@@ -6,8 +6,8 @@ use zeroable::Zeroable;
 // locals
 use rewards::rewards::interface::RewardModel;
 
-#[starknet::contract]
-mod RewardsData {
+#[starknet::component]
+mod RewardsDataComponent {
   // locals
   use rewards::utils::storage::StoreRewardModel;
 
@@ -26,22 +26,18 @@ mod RewardsData {
   }
 
   //
-  // Constructor
-  //
-
-  #[constructor]
-  fn constructor(ref self: ContractState) { }
-
-  //
   // IRulesData impl
   //
 
-  impl IRewardsDataImpl of interface::IRewardsData<ContractState> {
-    fn reward_model(self: @ContractState, reward_model_id: u128) -> RewardModel {
+  #[embeddable_as(RewardsDataImpl)]
+  impl RewardsData<
+    TContractState, +HasComponent<TContractState>
+  > of interface::IRewardsData<ComponentState<TContractState>> {
+    fn reward_model(self: @ComponentState<TContractState>, reward_model_id: u128) -> RewardModel {
       self._reward_models.read(reward_model_id)
     }
 
-    fn add_reward_model(ref self: ContractState, reward_model: RewardModel) -> u128 {
+    fn add_reward_model(ref self: ComponentState<TContractState>, reward_model: RewardModel) -> u128 {
       // assert reward model is valid
       assert(reward_model.is_valid(), 'invalid.reward_model');
 
