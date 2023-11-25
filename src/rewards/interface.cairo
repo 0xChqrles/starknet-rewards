@@ -10,7 +10,13 @@ struct RewardModel {
 #[derive(Serde, Copy, Drop)]
 struct RewardContent {
   giver: starknet::ContractAddress,
-  message: Span<felt252>, // can be empty
+  message: RewardMessage, // can be empty
+}
+
+#[derive(Serde, Copy, Drop)]
+struct RewardMessage {
+  s1: felt252,
+  s2: felt252,
 }
 
 #[derive(Serde, Copy, Drop)]
@@ -24,26 +30,26 @@ struct Reward {
 //
 
 #[starknet::interface]
-trait IRewardsTokens<TContractState> {
+trait IRewardsTokens<TState> {
   fn mint_reward(
-    ref self: TContractState,
+    ref self: TState,
     to: starknet::ContractAddress,
     reward: Reward,
     signature: Span<felt252>
-  ) -> Span<felt252>;
+  ) -> u256;
 }
 
 #[starknet::interface]
-trait IRewardsData<TContractState> {
-  fn reward_model(self: @TContractState, reward_model_id: u128) -> RewardModel;
+trait IRewardsData<TState> {
+  fn reward_model(self: @TState, reward_model_id: u128) -> RewardModel;
 
-  fn add_reward_model(ref self: TContractState, reward_model: RewardModel) -> u128;
+  fn add_reward_model(ref self: TState, reward_model: RewardModel) -> u128;
 }
 
 #[starknet::interface]
-trait IRewardsMessages<TContractState> {
+trait IRewardsMessages<TState> {
   fn consume_valid_reward_from(
-    ref self: TContractState,
+    ref self: TState,
     from: starknet::ContractAddress,
     reward: Reward,
     signature: Span<felt252>

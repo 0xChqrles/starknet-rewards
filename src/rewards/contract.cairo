@@ -1,10 +1,13 @@
 #[starknet::contract]
-mod RewardsTokens {
-  // locals
+mod Rewards {
   use openzeppelin::access::ownable::OwnableComponent;
   use openzeppelin::upgrades::UpgradeableComponent;
   use openzeppelin::token::erc721::ERC721Component;
   use openzeppelin::introspection::src5::SRC5Component;
+
+  // locals
+  use rewards::rewards::data::RewardsDataComponent;
+  use rewards::rewards::tokens::RewardsTokensComponent;
 
   use rewards::rewards::interface;
 
@@ -16,6 +19,8 @@ mod RewardsTokens {
   component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
   component!(path: ERC721Component, storage: erc721, event: ERC721Event);
   component!(path: SRC5Component, storage: src5, event: SRC5Event);
+  component!(path: RewardsDataComponent, storage: rewards_data, event: RewardsDataEvent);
+  component!(path: RewardsTokensComponent, storage: rewards_tokens, event: RewardsTokensEvent);
 
   // Ownable
   #[abi(embed_v0)]
@@ -33,6 +38,14 @@ mod RewardsTokens {
   #[abi(embed_v0)]
   impl ERC721CamelOnlyImpl = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
   impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+  // Rewards Data
+  #[abi(embed_v0)]
+  impl RewardsDataImpl = RewardsDataComponent::RewardsDataImpl<ContractState>;
+
+  // Rewards Tokens
+  #[abi(embed_v0)]
+  impl RewardsTokensImpl = RewardsTokensComponent::RewardsTokensImpl<ContractState>;
 
   //
   // Events
@@ -52,6 +65,12 @@ mod RewardsTokens {
 
     #[flat]
     SRC5Event: SRC5Component::Event,
+
+    #[flat]
+    RewardsDataEvent: RewardsDataComponent::Event,
+
+    #[flat]
+    RewardsTokensEvent: RewardsTokensComponent::Event,
   }
 
   //
@@ -71,6 +90,12 @@ mod RewardsTokens {
 
     #[substorage(v0)]
     src5: SRC5Component::Storage,
+
+    #[substorage(v0)]
+    rewards_data: RewardsDataComponent::Storage,
+
+    #[substorage(v0)]
+    rewards_tokens: RewardsTokensComponent::Storage,
   }
 
   //
