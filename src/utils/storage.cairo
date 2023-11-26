@@ -13,7 +13,7 @@ use starknet::{
 };
 
 // locals
-use rewards::rewards::interface::{ RewardModel, RewardContent, RewardMessage };
+use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote };
 
 // Reward Model
 
@@ -74,7 +74,7 @@ impl StoreRewardContent of Store::<RewardContent> {
         giver: storage_read_syscall(address_domain, storage_address_from_base_and_offset(base, offset))?
           .try_into()
           .unwrap(),
-        message: StoreRewardMessage::read_at_offset(:address_domain, :base, offset: offset + 1)?,
+        note: StoreRewardNote::read_at_offset(:address_domain, :base, offset: offset + 1)?,
       }
     )
   }
@@ -89,7 +89,7 @@ impl StoreRewardContent of Store::<RewardContent> {
     storage_write_syscall(address_domain, storage_address_from_base_and_offset(base, offset), value.giver.into())?;
 
     // message
-    StoreRewardMessage::write_at_offset(:address_domain, :base, offset: offset + 1, value: value.message)
+    StoreRewardNote::write_at_offset(:address_domain, :base, offset: offset + 1, value: value.note)
   }
 
   fn size() -> u8 {
@@ -99,18 +99,18 @@ impl StoreRewardContent of Store::<RewardContent> {
 
 // Reward Message
 
-impl StoreRewardMessage of Store::<RewardMessage> {
-  fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult::<RewardMessage> {
-    StoreRewardMessage::read_at_offset(:address_domain, :base, offset: 0)
+impl StoreRewardNote of Store::<RewardNote> {
+  fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult::<RewardNote> {
+    StoreRewardNote::read_at_offset(:address_domain, :base, offset: 0)
   }
 
-  fn write(address_domain: u32, base: StorageBaseAddress, value: RewardMessage) -> SyscallResult::<()> {
-    StoreRewardMessage::write_at_offset(:address_domain, :base, offset: 0, :value)
+  fn write(address_domain: u32, base: StorageBaseAddress, value: RewardNote) -> SyscallResult::<()> {
+    StoreRewardNote::write_at_offset(:address_domain, :base, offset: 0, :value)
   }
 
-  fn read_at_offset(address_domain: u32, base: StorageBaseAddress, offset: u8) -> SyscallResult<RewardMessage> {
+  fn read_at_offset(address_domain: u32, base: StorageBaseAddress, offset: u8) -> SyscallResult<RewardNote> {
     Result::Ok(
-      RewardMessage {
+      RewardNote {
         s1: storage_read_syscall(address_domain, storage_address_from_base_and_offset(base, offset))?,
         s2: storage_read_syscall(address_domain, storage_address_from_base_and_offset(base, offset + 1))?,
       }
@@ -121,7 +121,7 @@ impl StoreRewardMessage of Store::<RewardMessage> {
     address_domain: u32,
     base: StorageBaseAddress,
     offset: u8,
-    value: RewardMessage
+    value: RewardNote
   ) -> SyscallResult::<()> {
     // name
     storage_write_syscall(address_domain, storage_address_from_base_and_offset(base, offset), value.s1)?;

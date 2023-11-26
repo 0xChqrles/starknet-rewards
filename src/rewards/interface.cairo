@@ -10,11 +10,11 @@ struct RewardModel {
 #[derive(Serde, Copy, Drop)]
 struct RewardContent {
   giver: starknet::ContractAddress,
-  message: RewardMessage, // can be empty
+  note: RewardNote, // can be empty
 }
 
 #[derive(Serde, Copy, Drop)]
-struct RewardMessage {
+struct RewardNote {
   s1: felt252,
   s2: felt252,
 }
@@ -53,5 +53,5 @@ trait IRewardsMessages<TState> {
     from: starknet::ContractAddress,
     reward: Reward,
     signature: Span<felt252>
-  ) -> felt252;
+  );
 }

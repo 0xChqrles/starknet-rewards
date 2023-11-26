@@ -31,7 +31,8 @@ mod RewardsDataComponent {
 
   #[embeddable_as(RewardsDataImpl)]
   impl RewardsData<
-    TContractState, +HasComponent<TContractState>
+    TContractState,
+    +HasComponent<TContractState>
   > of interface::IRewardsData<ComponentState<TContractState>> {
     fn reward_model(self: @ComponentState<TContractState>, reward_model_id: u128) -> RewardModel {
       self._reward_models.read(reward_model_id)

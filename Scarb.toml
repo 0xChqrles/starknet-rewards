@@ -6,4 +6,4 @@ version = "0.1.0"
 
 [dependencies]
 openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", rev = "7a7be63" }
-# messages = { git = "https://github.com/ruleslabs/starknet-messages.git" }
+messages = { git = "https://github.com/ruleslabs/starknet-messages.git", branch = "main" }

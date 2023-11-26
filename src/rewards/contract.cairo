@@ -5,9 +5,12 @@ mod Rewards {
   use openzeppelin::token::erc721::ERC721Component;
   use openzeppelin::introspection::src5::SRC5Component;
 
+  use messages::messages::MessagesComponent;
+
   // locals
   use rewards::rewards::data::RewardsDataComponent;
   use rewards::rewards::tokens::RewardsTokensComponent;
+  use rewards::rewards::messages::RewardsMessagesComponent;
 
   use rewards::rewards::interface;
 
@@ -19,8 +22,12 @@ mod Rewards {
   component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
   component!(path: ERC721Component, storage: erc721, event: ERC721Event);
   component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+  component!(path: MessagesComponent, storage: messages, event: MessagesEvent);
+
   component!(path: RewardsDataComponent, storage: rewards_data, event: RewardsDataEvent);
   component!(path: RewardsTokensComponent, storage: rewards_tokens, event: RewardsTokensEvent);
+  component!(path: RewardsMessagesComponent, storage: rewards_messages, event: RewardsMessagesEvent);
 
   // Ownable
   #[abi(embed_v0)]
@@ -47,6 +54,10 @@ mod Rewards {
   #[abi(embed_v0)]
   impl RewardsTokensImpl = RewardsTokensComponent::RewardsTokensImpl<ContractState>;
 
+  // Rewards Messages
+  #[abi(embed_v0)]
+  impl RewardsMessagesImpl = RewardsMessagesComponent::RewardsMessagesImpl<ContractState>;
+
   //
   // Events
   //
@@ -67,10 +78,16 @@ mod Rewards {
     SRC5Event: SRC5Component::Event,
 
     #[flat]
+    MessagesEvent: MessagesComponent::Event,
+
+    #[flat]
     RewardsDataEvent: RewardsDataComponent::Event,
 
     #[flat]
     RewardsTokensEvent: RewardsTokensComponent::Event,
+
+    #[flat]
+    RewardsMessagesEvent: RewardsMessagesComponent::Event,
   }
 
   //
@@ -92,10 +109,16 @@ mod Rewards {
     src5: SRC5Component::Storage,
 
     #[substorage(v0)]
+    messages: MessagesComponent::Storage,
+
+    #[substorage(v0)]
     rewards_data: RewardsDataComponent::Storage,
 
     #[substorage(v0)]
     rewards_tokens: RewardsTokensComponent::Storage,
+
+    #[substorage(v0)]
+    rewards_messages: RewardsMessagesComponent::Storage,
   }
 
   //
