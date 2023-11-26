@@ -3,7 +3,7 @@ use messages::typed_data::typed_data::Domain;
 fn DOMAIN() -> Domain {
   Domain {
     name: 'Rewards',
-    version: '1.0',
+    version: '0.1.0',
   }
 }
 

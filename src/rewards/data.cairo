@@ -64,7 +64,8 @@ trait RewardModelTrait {
 
 impl RewardModelImpl of RewardModelTrait {
   fn is_valid(self: RewardModel) -> bool {
-    if (self.name.is_zero() | self.price.is_zero() | self.image_hash.is_zero()) {
+    // allow rewards with a null price
+    if (self.name.is_zero() | self.image_hash.is_zero()) {
       false
     } else {
       true
