@@ -55,3 +55,8 @@ trait IRewardsMessages<TState> {
     signature: Span<felt252>
   );
 }
+
+#[starknet::interface]
+trait IRewardsFunds<TState> {
+  fn withdraw(ref self: TState, recipient: starknet::ContractAddress);
+}

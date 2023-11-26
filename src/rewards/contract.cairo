@@ -10,6 +10,7 @@ mod Rewards {
   // locals
   use rewards::rewards::data::RewardsDataComponent;
   use rewards::rewards::tokens::RewardsTokensComponent;
+  use rewards::rewards::funds::RewardsFundsComponent;
   use rewards::rewards::messages::RewardsMessagesComponent;
 
   use rewards::rewards::interface;
@@ -27,6 +28,7 @@ mod Rewards {
 
   component!(path: RewardsDataComponent, storage: rewards_data, event: RewardsDataEvent);
   component!(path: RewardsTokensComponent, storage: rewards_tokens, event: RewardsTokensEvent);
+  component!(path: RewardsFundsComponent, storage: rewards_funds, event: RewardsFundsEvent);
   component!(path: RewardsMessagesComponent, storage: rewards_messages, event: RewardsMessagesEvent);
 
   // Ownable
@@ -53,6 +55,10 @@ mod Rewards {
   // Rewards Tokens
   #[abi(embed_v0)]
   impl RewardsTokensImpl = RewardsTokensComponent::RewardsTokensImpl<ContractState>;
+
+  // Rewards Funds
+  #[abi(embed_v0)]
+  impl RewardsFundsImpl = RewardsFundsComponent::RewardsFundsImpl<ContractState>;
 
   // Rewards Messages
   #[abi(embed_v0)]
@@ -87,6 +93,9 @@ mod Rewards {
     RewardsTokensEvent: RewardsTokensComponent::Event,
 
     #[flat]
+    RewardsFundsEvent: RewardsFundsComponent::Event,
+
+    #[flat]
     RewardsMessagesEvent: RewardsMessagesComponent::Event,
   }
 
@@ -118,18 +127,10 @@ mod Rewards {
     rewards_tokens: RewardsTokensComponent::Storage,
 
     #[substorage(v0)]
+    rewards_funds: RewardsFundsComponent::Storage,
+
+    #[substorage(v0)]
     rewards_messages: RewardsMessagesComponent::Storage,
-  }
-
-  //
-  // Modifiers
-  //
-
-  #[generate_trait]
-  impl ModifierImpl of ModifierTrait {
-    fn _only_owner(self: @ContractState) {
-      self.ownable.assert_only_owner();
-    }
   }
 
   //
@@ -137,8 +138,13 @@ mod Rewards {
   //
 
   #[constructor]
-  fn constructor(ref self: ContractState, owner_: starknet::ContractAddress) {
-    self.ownable.initializer(owner: owner_);
+  fn constructor(
+    ref self: ContractState,
+    owner: starknet::ContractAddress,
+    ether_contract_address: starknet::ContractAddress
+  ) {
+    self.ownable.initializer(:owner);
+    // TODO: funds initializer
   }
 
   //
@@ -148,7 +154,7 @@ mod Rewards {
   #[external(v0)]
   fn upgrade(ref self: ContractState, new_class_hash: starknet::ClassHash) {
     // Modifiers
-    self._only_owner();
+    self.ownable.assert_only_owner();
 
     // Body
 
