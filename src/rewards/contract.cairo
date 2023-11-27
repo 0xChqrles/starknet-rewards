@@ -8,6 +8,8 @@ mod Rewards {
   use messages::messages::MessagesComponent;
 
   // locals
+  use rewards::token::ERC721_soulbound::ERC721SoulboundComponent;
+
   use rewards::rewards::data::RewardsDataComponent;
   use rewards::rewards::tokens::RewardsTokensComponent;
   use rewards::rewards::funds::RewardsFundsComponent;
@@ -26,6 +28,8 @@ mod Rewards {
 
   component!(path: MessagesComponent, storage: messages, event: MessagesEvent);
 
+  component!(path: ERC721SoulboundComponent, storage: erc721_soulbound, event: ERC721SoulboundEvent);
+
   component!(path: RewardsDataComponent, storage: rewards_data, event: RewardsDataEvent);
   component!(path: RewardsTokensComponent, storage: rewards_tokens, event: RewardsTokensEvent);
   component!(path: RewardsFundsComponent, storage: rewards_funds, event: RewardsFundsEvent);
@@ -41,12 +45,13 @@ mod Rewards {
 
   // ERC721
   #[abi(embed_v0)]
-  impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
-  #[abi(embed_v0)]
   impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
+
+  // ERC721 Soulbound
   #[abi(embed_v0)]
-  impl ERC721CamelOnlyImpl = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
-  impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+  impl ERC721SoulboundImpl = ERC721SoulboundComponent::ERC721SoulboundImpl<ContractState>;
+  #[abi(embed_v0)]
+  impl ERC721SoulboundCamelOnlyImpl = ERC721SoulboundComponent::ERC721SoulboundCamelOnlyImpl<ContractState>;
 
   // Rewards Data
   #[abi(embed_v0)]
@@ -87,6 +92,9 @@ mod Rewards {
     MessagesEvent: MessagesComponent::Event,
 
     #[flat]
+    ERC721SoulboundEvent: ERC721SoulboundComponent::Event,
+
+    #[flat]
     RewardsDataEvent: RewardsDataComponent::Event,
 
     #[flat]
@@ -119,6 +127,9 @@ mod Rewards {
 
     #[substorage(v0)]
     messages: MessagesComponent::Storage,
+
+    #[substorage(v0)]
+    erc721_soulbound: ERC721SoulboundComponent::Storage,
 
     #[substorage(v0)]
     rewards_data: RewardsDataComponent::Storage,
