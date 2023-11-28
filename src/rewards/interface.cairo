@@ -31,12 +31,7 @@ struct Reward {
 
 #[starknet::interface]
 trait IRewardsTokens<TState> {
-  fn mint_reward(
-    ref self: TState,
-    to: starknet::ContractAddress,
-    reward: Reward,
-    signature: Span<felt252>
-  ) -> u256;
+  fn mint_reward(ref self: TState, to_domain: felt252, reward: Reward, signature: Span<felt252>) -> u256;
 }
 
 #[starknet::interface]

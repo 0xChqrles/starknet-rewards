@@ -2,20 +2,12 @@
 mod RewardsTokensComponent {
   use array::SpanTrait;
 
-  use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
-
-  use openzeppelin::token::erc721::ERC721Component;
-  use openzeppelin::token::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
-
-  use openzeppelin::introspection::src5::SRC5Component;
-
-  use openzeppelin::token::erc20::dual20::DualCaseERC20;
+  use openzeppelin::token::erc20::dual20::{ DualCaseERC20, DualCaseERC20Trait };
 
   use messages::messages::MessagesComponent;
 
   // locals
   use rewards::rewards::messages::RewardsMessagesComponent;
-  use rewards::rewards::interface::IRewardsMessages;
 
   use rewards::rewards::funds::RewardsFundsComponent;
   use rewards::rewards::funds::RewardsFundsComponent::InternalTrait as RewardsFundsInternalTrait;
@@ -24,7 +16,7 @@ mod RewardsTokensComponent {
 
   use rewards::utils::storage::StoreRewardContent;
   use rewards::rewards::interface;
-  use rewards::rewards::interface::{ Reward, RewardContent };
+  use rewards::rewards::interface::{ IRewardsMessages, Reward, RewardContent };
 
   //
   // Storage
@@ -54,8 +46,6 @@ mod RewardsTokensComponent {
   impl RewardsTokens<
     TContractState,
     +HasComponent<TContractState>,
-    +ERC721Component::HasComponent<TContractState>,
-    +SRC5Component::HasComponent<TContractState>,
     impl RewardsMessages: RewardsMessagesComponent::HasComponent<TContractState>,
     +MessagesComponent::HasComponent<TContractState>,
     impl RewardsFunds: RewardsFundsComponent::HasComponent<TContractState>,
@@ -64,7 +54,7 @@ mod RewardsTokensComponent {
   > of interface::IRewardsTokens<ComponentState<TContractState>> {
     fn mint_reward(
       ref self: ComponentState<TContractState>,
-      to: starknet::ContractAddress,
+      to_domain: felt252,
       reward: Reward,
       signature: Span<felt252>
     ) -> u256 {
@@ -98,7 +88,7 @@ mod RewardsTokensComponent {
       };
 
       // mint token
-      self._mint(:to, :token_id);
+      self._add_reward(:to_domain, :token_id);
 
       // return token ID
       token_id
@@ -113,14 +103,13 @@ mod RewardsTokensComponent {
   impl InternalImpl<
     TContractState,
     +HasComponent<TContractState>,
-    impl ERC721: ERC721Component::HasComponent<TContractState>,
-    +SRC5Component::HasComponent<TContractState>,
     +Drop<TContractState>
   > of InternalTrait<TContractState> {
-    fn _mint(ref self: ComponentState<TContractState>, to: starknet::ContractAddress, token_id: u256) {
-      let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
+    fn _add_reward(ref self: ComponentState<TContractState>, to_domain: felt252, token_id: u256) {
+      // let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
 
-      erc721_component._safe_mint(:to, :token_id, data: array![].span());
+      // erc721_component._safe_mint(:to, :token_id, data: array![].span());
+      // TODO: implement
     }
 
     fn _add_reward_content(ref self: ComponentState<TContractState>, reward_content: RewardContent) -> u128 {
