@@ -9,11 +9,12 @@ use rewards::rewards::interface::RewardModel;
 #[starknet::component]
 mod RewardsDataComponent {
   // locals
-  use rewards::utils::storage::StoreRewardModel;
+  use rewards::utils::storage::{ StoreRewardModel, StoreRewardContent };
 
-  use super::{ RewardModel, RewardModelTrait};
+  use super::{ RewardModel, RewardModelTrait };
 
   use rewards::rewards::interface;
+  use rewards::rewards::interface::RewardContent;
 
   //
   // Storage
@@ -23,6 +24,10 @@ mod RewardsDataComponent {
   struct Storage {
     // reward_model_id -> RewardModel
     _reward_models: LegacyMap<u128, RewardModel>,
+    // reward_model_id -> RewardModel
+    _reward_contents: LegacyMap<u128, RewardContent>,
+    // used to generate reward contents ids
+    _reward_contents_count: u128,
   }
 
   //
@@ -50,6 +55,29 @@ mod RewardsDataComponent {
 
       // return reward model id
       reward_model_id
+    }
+  }
+
+  //
+  // Internals
+  //
+
+  #[generate_trait]
+  impl InternalImpl<
+    TContractState,
+    +HasComponent<TContractState>,
+    +Drop<TContractState>
+  > of InternalTrait<TContractState> {
+    fn _add_reward_content(ref self: ComponentState<TContractState>, reward_content: RewardContent) -> u128 {
+      // increase reward model count
+      let mut reward_contents_count_ = self._reward_contents_count.read() + 1;
+      self._reward_contents_count.write(reward_contents_count_);
+
+      // store reward content
+      let reward_content_id = reward_contents_count_;
+      self._reward_contents.write(reward_content_id, reward_content);
+
+      reward_content_id
     }
   }
 }

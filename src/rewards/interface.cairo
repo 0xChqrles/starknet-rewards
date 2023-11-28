@@ -31,7 +31,9 @@ struct Reward {
 
 #[starknet::interface]
 trait IRewardsTokens<TState> {
-  fn mint_reward(ref self: TState, to_domain: felt252, reward: Reward, signature: Span<felt252>) -> u256;
+  fn owner_of(self: @TState, reward_id: u256) -> felt252;
+
+  fn send_reward(ref self: TState, to_domain: felt252, reward: Reward, signature: Span<felt252>) -> u256;
 }
 
 #[starknet::interface]

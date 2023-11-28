@@ -13,10 +13,10 @@ mod RewardsTokensComponent {
   use rewards::rewards::funds::RewardsFundsComponent::InternalTrait as RewardsFundsInternalTrait;
 
   use rewards::rewards::data::RewardsDataComponent;
+  use rewards::rewards::data::RewardsDataComponent::InternalTrait as RewardsDataInternalTrait;
 
-  use rewards::utils::storage::StoreRewardContent;
   use rewards::rewards::interface;
-  use rewards::rewards::interface::{ IRewardsMessages, Reward, RewardContent };
+  use rewards::rewards::interface::{ IRewardsMessages, Reward };
 
   //
   // Storage
@@ -24,10 +24,8 @@ mod RewardsTokensComponent {
 
   #[storage]
   struct Storage {
-    // reward_model_id -> RewardModel
-    _reward_contents: LegacyMap<u128, RewardContent>,
-    // used to generate reward contents ids
-    _reward_contents_count: u128,
+    // reward ID -> starknet ID domain
+    _rewards_owners: LegacyMap<u256, felt252>,
   }
 
   //
@@ -49,10 +47,14 @@ mod RewardsTokensComponent {
     impl RewardsMessages: RewardsMessagesComponent::HasComponent<TContractState>,
     +MessagesComponent::HasComponent<TContractState>,
     impl RewardsFunds: RewardsFundsComponent::HasComponent<TContractState>,
-    +RewardsDataComponent::HasComponent<TContractState>,
+    impl RewardsData: RewardsDataComponent::HasComponent<TContractState>,
     +Drop<TContractState>,
   > of interface::IRewardsTokens<ComponentState<TContractState>> {
-    fn mint_reward(
+    fn owner_of(self: @ComponentState<TContractState>, reward_id: u256) -> felt252 {
+      self._rewards_owners.read(reward_id)
+    }
+
+    fn send_reward(
       ref self: ComponentState<TContractState>,
       to_domain: felt252,
       reward: Reward,
@@ -62,6 +64,7 @@ mod RewardsTokensComponent {
 
       let mut rewards_messages_component = get_dep_component_mut!(ref self, RewardsMessages);
       let mut rewards_funds_component = get_dep_component_mut!(ref self, RewardsFunds);
+      let mut rewards_data_component = get_dep_component_mut!(ref self, RewardsData);
 
       // verify signature
       if (signature.is_empty()) {
@@ -79,7 +82,7 @@ mod RewardsTokensComponent {
       );
 
       // add reward_content
-      let reward_content_id = self._add_reward_content(reward_content: reward.reward_content);
+      let reward_content_id = rewards_data_component._add_reward_content(reward_content: reward.reward_content);
 
       // compute token ID
       let token_id = u256 {
@@ -106,22 +109,7 @@ mod RewardsTokensComponent {
     +Drop<TContractState>
   > of InternalTrait<TContractState> {
     fn _add_reward(ref self: ComponentState<TContractState>, to_domain: felt252, token_id: u256) {
-      // let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
-
-      // erc721_component._safe_mint(:to, :token_id, data: array![].span());
-      // TODO: implement
-    }
-
-    fn _add_reward_content(ref self: ComponentState<TContractState>, reward_content: RewardContent) -> u128 {
-      // increase reward model count
-      let mut reward_contents_count_ = self._reward_contents_count.read() + 1;
-      self._reward_contents_count.write(reward_contents_count_);
-
-      // store reward content
-      let reward_content_id = reward_contents_count_;
-      self._reward_contents.write(reward_content_id, reward_content);
-
-      reward_content_id
+      self._rewards_owners.write(token_id, to_domain);
     }
   }
 }
