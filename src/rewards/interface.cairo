@@ -40,7 +40,7 @@ trait IRewardsTokens<TState> {
 trait IRewardsData<TState> {
   fn reward_model(self: @TState, reward_model_id: u128) -> RewardModel;
 
-  fn add_reward_model(ref self: TState, reward_model: RewardModel) -> u128;
+  fn reward_content(self: @TState, reward_content_id: u128) -> RewardContent;
 }
 
 #[starknet::interface]
@@ -51,9 +51,4 @@ trait IRewardsMessages<TState> {
     reward: Reward,
     signature: Span<felt252>
   );
-}
-
-#[starknet::interface]
-trait IRewardsFunds<TState> {
-  fn withdraw(ref self: TState, recipient: starknet::ContractAddress);
 }

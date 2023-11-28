@@ -11,9 +11,11 @@ mod Rewards {
   use rewards::rewards::funds::RewardsFundsComponent;
   use rewards::rewards::messages::RewardsMessagesComponent;
 
-  use rewards::rewards::interface;
+  use rewards::rewards::funds::RewardsFundsComponent::InternalTrait as RewardsFundsInternalTrait;
+  use rewards::rewards::data::RewardsDataComponent::InternalTrait as RewardsDataInternalTrait;
 
-  use rewards::rewards::funds::RewardsFundsComponent::InternalTrait;
+  use rewards::rewards::interface;
+  use rewards::rewards::interface::RewardModel;
 
   //
   // Components
@@ -40,14 +42,14 @@ mod Rewards {
   // Rewards Data
   #[abi(embed_v0)]
   impl RewardsDataImpl = RewardsDataComponent::RewardsDataImpl<ContractState>;
+  impl RewardsDataInternalImpl = RewardsDataComponent::InternalImpl<ContractState>;
 
   // Rewards Tokens
   #[abi(embed_v0)]
   impl RewardsTokensImpl = RewardsTokensComponent::RewardsTokensImpl<ContractState>;
 
   // Rewards Funds
-  #[abi(embed_v0)]
-  impl RewardsFundsImpl = RewardsFundsComponent::RewardsFundsImpl<ContractState>;
+  impl RewardsFundsInternalImpl = RewardsFundsComponent::InternalImpl<ContractState>;
 
   // Rewards Messages
   #[abi(embed_v0)]
@@ -130,12 +132,36 @@ mod Rewards {
 
   #[external(v0)]
   fn upgrade(ref self: ContractState, new_class_hash: starknet::ClassHash) {
-    // Modifiers
+    // only owner
     self.ownable.assert_only_owner();
-
-    // Body
 
     // set new impl
     self.upgradeable._upgrade(:new_class_hash);
+  }
+
+  //
+  // Rewards Funds
+  //
+
+  #[external(v0)]
+  fn withdraw(ref self: ContractState, recipient: starknet::ContractAddress) {
+    // only owner
+    self.ownable.assert_only_owner();
+
+    // withdraw
+    self.rewards_funds._withdraw(:recipient);
+  }
+
+  //
+  // Rewards Data
+  //
+
+  #[external(v0)]
+  fn add_reward_model(ref self: ContractState, reward_model: RewardModel) -> u128 {
+    // only owner
+    self.ownable.assert_only_owner();
+
+    // withdraw
+    self.rewards_data._add_reward_model(:reward_model)
   }
 }

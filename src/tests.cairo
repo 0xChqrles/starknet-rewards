@@ -4,3 +4,4 @@ mod test_rewards_messages;
 mod test_rewards_tokens;
 mod mocks;
 mod utils;
+mod constants;

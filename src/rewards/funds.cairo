@@ -1,8 +1,5 @@
 #[starknet::component]
 mod RewardsFundsComponent {
-  use openzeppelin::access::ownable::OwnableComponent;
-  use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-
   use openzeppelin::token::erc20::dual20::DualCaseERC20;
   use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
 
@@ -30,37 +27,6 @@ mod RewardsFundsComponent {
   mod Errors {
     const MINT_NOT_ALLOWED: felt252 = 'rewards.mint_not_allowed';
     const INVALID_REWARD_MODEL: felt252 = 'rewards.invalid_rewards_model';
-  }
-
-  //
-  // IRewardsFunds
-  //
-
-  #[embeddable_as(RewardsFundsImpl)]
-  impl RewardsFunds<
-    TContractState,
-    +HasComponent<TContractState>,
-    impl Ownable: OwnableComponent::HasComponent<TContractState>,
-    +Drop<TContractState>
-  > of interface::IRewardsFunds<ComponentState<TContractState>> {
-    fn withdraw(ref self: ComponentState<TContractState>, recipient: starknet::ContractAddress) {
-      let owneable_component = get_dep_component_mut!(ref self, Ownable);
-
-      // assert caller is the owner
-      owneable_component.assert_only_owner();
-
-      // withdraw funds
-      let ether_contract_address_ = self._ether_contract_address.read();
-      let ether = DualCaseERC20 { contract_address: ether_contract_address_ };
-
-      let this = starknet::get_contract_address();
-
-      // get current balance
-      let balance = ether.balance_of(account: this);
-
-      // withdraw the whole balance
-      ether.transfer(:recipient, amount: balance);
-    }
   }
 
   //
@@ -98,6 +64,20 @@ mod RewardsFundsComponent {
       let this = starknet::get_contract_address();
 
       ether.transfer_from(sender: from, recipient: this, amount: reward_model.price);
+    }
+
+    fn _withdraw(ref self: ComponentState<TContractState>, recipient: starknet::ContractAddress) {
+      // withdraw funds
+      let ether_contract_address_ = self._ether_contract_address.read();
+      let ether = DualCaseERC20 { contract_address: ether_contract_address_ };
+
+      let this = starknet::get_contract_address();
+
+      // get current balance
+      let balance = ether.balance_of(account: this);
+
+      // withdraw the whole balance
+      ether.transfer(:recipient, amount: balance);
     }
   }
 }

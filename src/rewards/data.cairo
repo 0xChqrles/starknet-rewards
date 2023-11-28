@@ -37,24 +37,15 @@ mod RewardsDataComponent {
   #[embeddable_as(RewardsDataImpl)]
   impl RewardsData<
     TContractState,
-    +HasComponent<TContractState>
+    +HasComponent<TContractState>,
+    +Drop<TContractState>,
   > of interface::IRewardsData<ComponentState<TContractState>> {
     fn reward_model(self: @ComponentState<TContractState>, reward_model_id: u128) -> RewardModel {
       self._reward_models.read(reward_model_id)
     }
 
-    fn add_reward_model(ref self: ComponentState<TContractState>, reward_model: RewardModel) -> u128 {
-      // assert reward model is valid
-      assert(reward_model.is_valid(), 'invalid.reward_model');
-
-      // compute reward model id
-      let reward_model_id = reward_model.id();
-
-      // store reward model
-      self._reward_models.write(reward_model_id, reward_model);
-
-      // return reward model id
-      reward_model_id
+    fn reward_content(self: @ComponentState<TContractState>, reward_content_id: u128) -> RewardContent {
+      self._reward_contents.read(reward_content_id)
     }
   }
 
@@ -78,6 +69,20 @@ mod RewardsDataComponent {
       self._reward_contents.write(reward_content_id, reward_content);
 
       reward_content_id
+    }
+
+    fn _add_reward_model(ref self: ComponentState<TContractState>, reward_model: RewardModel) -> u128 {
+      // assert reward model is valid
+      assert(reward_model.is_valid(), 'invalid.reward_model');
+
+      // compute reward model id
+      let reward_model_id = reward_model.id();
+
+      // store reward model
+      self._reward_models.write(reward_model_id, reward_model);
+
+      // return reward model id
+      reward_model_id
     }
   }
 }
