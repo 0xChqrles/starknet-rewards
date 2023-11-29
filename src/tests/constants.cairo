@@ -1,11 +1,14 @@
 // locals
-use rewards::rewards::interface::RewardModel;
+use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote };
 
 mod VALID {
   // locals
   use rewards::rewards::data::RewardModelTrait;
 
-  use super::RewardModel;
+  use super::{ RewardModel, RewardContent, RewardNote, GIVER_1, GIVER_2 };
+  use super::super::utils::zeroable::RewardNoteZeroable;
+
+  // reward models
 
   fn REWARD_MODEL_1() -> RewardModel {
     RewardModel {
@@ -19,10 +22,6 @@ mod VALID {
         high: 'price low 1',
       },
     }
-  }
-
-  fn REWARD_MODEL_1_ID() -> u128 {
-    REWARD_MODEL_1().id()
   }
 
   fn REWARD_MODEL_2() -> RewardModel {
@@ -39,10 +38,6 @@ mod VALID {
     }
   }
 
-  fn REWARD_MODEL_2_ID() -> u128 {
-    REWARD_MODEL_2().id()
-  }
-
   fn REWARD_MODEL_FREE() -> RewardModel {
     RewardModel {
       name: 1,
@@ -51,8 +46,45 @@ mod VALID {
     }
   }
 
+  fn REWARD_MODEL_1_ID() -> u128 {
+    REWARD_MODEL_1().id()
+  }
+
+  fn REWARD_MODEL_2_ID() -> u128 {
+    REWARD_MODEL_2().id()
+  }
+
   fn REWARD_MODEL_FREE_ID() -> u128 {
     REWARD_MODEL_FREE().id()
+  }
+
+  // reward contents
+
+  fn REWARD_CONTENT_1() -> RewardContent {
+    RewardContent {
+      giver: GIVER_1(),
+      note: RewardNote {
+        s1: 1,
+        s2: 2,
+      },
+    }
+  }
+
+  fn REWARD_CONTENT_2() -> RewardContent {
+    RewardContent {
+      giver: GIVER_2(),
+      note: RewardNote {
+        s1: 's1',
+        s2: 's2',
+      },
+    }
+  }
+
+  fn REWARD_CONTENT_EMPTY_NOTE() -> RewardContent {
+    RewardContent {
+      giver: GIVER_1(),
+      note: RewardNoteZeroable::zero(),
+    }
   }
 }
 
@@ -60,7 +92,9 @@ mod INVALID {
   // locals
   use rewards::rewards::data::RewardModelTrait;
 
-  use super::RewardModel;
+  use super::{ RewardModel, RewardContent, RewardNote, ZERO };
+
+  // reward models
 
   fn REWARD_MODEL_NO_IMAGE() -> RewardModel {
     RewardModel {
@@ -77,8 +111,32 @@ mod INVALID {
       price: 1,
     }
   }
+
+  // reward contents
+
+  fn REWARD_CONTENT_ZERO_GIVER() -> RewardContent {
+    RewardContent {
+      giver: ZERO(),
+      note: RewardNote {
+        s1: 1,
+        s2: 1,
+      },
+    }
+  }
 }
 
 fn OWNER() -> starknet::ContractAddress {
   starknet::contract_address_const::<'OWNER'>()
+}
+
+fn GIVER_1() -> starknet::ContractAddress {
+  starknet::contract_address_const::<'GIVER_1'>()
+}
+
+fn GIVER_2() -> starknet::ContractAddress {
+  starknet::contract_address_const::<'GIVER_2'>()
+}
+
+fn ZERO() -> starknet::ContractAddress {
+  starknet::contract_address_const::<0>()
 }

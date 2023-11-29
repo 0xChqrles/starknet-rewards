@@ -125,7 +125,7 @@ impl StoreRewardNote of Store::<RewardNote> {
   ) -> SyscallResult::<()> {
     // name
     storage_write_syscall(address_domain, storage_address_from_base_and_offset(base, offset), value.s1)?;
-    storage_write_syscall(address_domain, storage_address_from_base_and_offset(base, offset), value.s2)
+    storage_write_syscall(address_domain, storage_address_from_base_and_offset(base, offset + 1), value.s2)
   }
 
   fn size() -> u8 {

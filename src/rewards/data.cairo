@@ -4,17 +4,16 @@ use poseidon::PoseidonTrait;
 use zeroable::Zeroable;
 
 // locals
-use rewards::rewards::interface::RewardModel;
+use rewards::rewards::interface::{ RewardModel, RewardContent };
 
 #[starknet::component]
 mod RewardsDataComponent {
   // locals
   use rewards::utils::storage::{ StoreRewardModel, StoreRewardContent };
 
-  use super::{ RewardModel, RewardModelTrait };
+  use super::{ RewardModel, RewardModelTrait, RewardContent, RewardContentTrait };
 
   use rewards::rewards::interface;
-  use rewards::rewards::interface::RewardContent;
 
   //
   // Storage
@@ -28,6 +27,15 @@ mod RewardsDataComponent {
     _reward_contents: LegacyMap<u128, RewardContent>,
     // used to generate reward contents ids
     _reward_contents_count: u128,
+  }
+
+  //
+  // Errors
+  //
+
+  mod Errors {
+    const INVALID_REWARD_CONTENT: felt252 = 'invalid.reward_content';
+    const INVALID_REWARD_MODEL: felt252 = 'invalid.reward_model';
   }
 
   //
@@ -60,6 +68,9 @@ mod RewardsDataComponent {
     +Drop<TContractState>
   > of InternalTrait<TContractState> {
     fn _add_reward_content(ref self: ComponentState<TContractState>, reward_content: RewardContent) -> u128 {
+      // assert reward content is valid
+      assert(reward_content.is_valid(), 'invalid.reward_content');
+
       // increase reward model count
       let mut reward_contents_count_ = self._reward_contents_count.read() + 1;
       self._reward_contents_count.write(reward_contents_count_);
@@ -97,7 +108,7 @@ trait RewardModelTrait {
 
 impl RewardModelImpl of RewardModelTrait {
   fn is_valid(self: RewardModel) -> bool {
-    // allow rewards with a null price
+    // allow reward models with a null price
     if (self.name.is_zero() | self.image_hash.is_zero()) {
       false
     } else {
@@ -117,5 +128,16 @@ impl RewardModelImpl of RewardModelTrait {
     let hash = hash_state.finalize();
 
     Into::<felt252, u256>::into(hash).low
+  }
+}
+
+trait RewardContentTrait {
+  fn is_valid(self: RewardContent) -> bool;
+}
+
+impl RewardContentImpl of RewardContentTrait {
+  fn is_valid(self: RewardContent) -> bool {
+    // allow reward contents with an empty note
+    !self.giver.is_zero()
   }
 }
