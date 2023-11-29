@@ -1,6 +1,8 @@
 #[starknet::component]
 mod RewardsFundsComponent {
-  use openzeppelin::token::erc20::dual20::DualCaseERC20;
+  use core::zeroable::Zeroable;
+use core::debug::PrintTrait;
+use openzeppelin::token::erc20::dual20::DualCaseERC20;
   use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
 
   // locals
@@ -25,8 +27,8 @@ mod RewardsFundsComponent {
   //
 
   mod Errors {
-    const MINT_NOT_ALLOWED: felt252 = 'rewards.mint_not_allowed';
-    const INVALID_REWARD_MODEL: felt252 = 'rewards.invalid_rewards_model';
+    const INVALID_REWARD_MODEL: felt252 = 'funds.invalid_rewards_model';
+    const WITHDRAW_TO_ZERO: felt252 = 'funds.withdraw_to_zero';
   }
 
   //
@@ -67,6 +69,9 @@ mod RewardsFundsComponent {
     }
 
     fn _withdraw(ref self: ComponentState<TContractState>, recipient: starknet::ContractAddress) {
+      // assert the recipient is not null
+      assert(recipient.is_non_zero(), Errors::WITHDRAW_TO_ZERO);
+
       // withdraw funds
       let ether_contract_address_ = self._ether_contract_address.read();
       let ether = DualCaseERC20 { contract_address: ether_contract_address_ };

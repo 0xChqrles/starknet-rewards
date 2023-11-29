@@ -1,3 +1,5 @@
+use openzeppelin::token::erc20::dual20::DualCaseERC20;
+
 // locals
 use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote };
 
@@ -35,6 +37,14 @@ mod VALID {
         low: 'price low 2',
         high: 'price low 2',
       },
+    }
+  }
+
+  fn REWARD_MODEL_CHEAP() -> RewardModel {
+    RewardModel {
+      name: 1,
+      image_hash: 1,
+      price: 1_000,
     }
   }
 
@@ -90,8 +100,6 @@ mod VALID {
 
 mod INVALID {
   // locals
-  use rewards::rewards::data::RewardModelTrait;
-
   use super::{ RewardModel, RewardContent, RewardNote, ZERO };
 
   // reward models
@@ -125,6 +133,8 @@ mod INVALID {
   }
 }
 
+// addresses
+
 fn OWNER() -> starknet::ContractAddress {
   starknet::contract_address_const::<'OWNER'>()
 }
@@ -139,4 +149,14 @@ fn GIVER_2() -> starknet::ContractAddress {
 
 fn ZERO() -> starknet::ContractAddress {
   starknet::contract_address_const::<0>()
+}
+
+fn FUNDS() -> starknet::ContractAddress {
+  starknet::contract_address_const::<'FUNDS'>()
+}
+
+// contracts
+
+fn ETHER() -> DualCaseERC20 {
+  DualCaseERC20 { contract_address: starknet::contract_address_const::<1>() }
 }
