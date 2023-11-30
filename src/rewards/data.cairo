@@ -1,3 +1,4 @@
+use core::debug::PrintTrait;
 use hash::HashStateTrait;
 use traits::Into;
 use poseidon::PoseidonTrait;
@@ -34,8 +35,8 @@ mod RewardsDataComponent {
   //
 
   mod Errors {
-    const INVALID_REWARD_CONTENT: felt252 = 'invalid.reward_content';
-    const INVALID_REWARD_MODEL: felt252 = 'invalid.reward_model';
+    const INVALID_REWARD_CONTENT: felt252 = 'data.invalid_reward_content';
+    const INVALID_REWARD_MODEL: felt252 = 'data.invalid_reward_model';
   }
 
   //
@@ -69,7 +70,7 @@ mod RewardsDataComponent {
   > of InternalTrait<TContractState> {
     fn _add_reward_content(ref self: ComponentState<TContractState>, reward_content: RewardContent) -> u128 {
       // assert reward content is valid
-      assert(reward_content.is_valid(), 'invalid.reward_content');
+      assert(reward_content.is_valid(), Errors::INVALID_REWARD_CONTENT);
 
       // increase reward model count
       let mut reward_contents_count_ = self._reward_contents_count.read() + 1;
@@ -84,7 +85,7 @@ mod RewardsDataComponent {
 
     fn _add_reward_model(ref self: ComponentState<TContractState>, reward_model: RewardModel) -> u128 {
       // assert reward model is valid
-      assert(reward_model.is_valid(), 'invalid.reward_model');
+      assert(reward_model.is_valid(), Errors::INVALID_REWARD_MODEL);
 
       // compute reward model id
       let reward_model_id = reward_model.id();

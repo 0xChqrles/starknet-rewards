@@ -3,6 +3,10 @@ mod RewardsDataMock {
   // locals
   use rewards::rewards::data::RewardsDataComponent;
 
+  //
+  // Components
+  //
+
   component!(path: RewardsDataComponent, storage: rewards_data, event: RewardsDataEvent);
 
   #[abi(embed_v0)]

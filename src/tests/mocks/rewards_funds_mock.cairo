@@ -4,6 +4,10 @@ mod RewardsFundsMock {
   use rewards::rewards::funds::RewardsFundsComponent;
   use rewards::rewards::data::RewardsDataComponent;
 
+  //
+  // Components
+  //
+
   component!(path: RewardsFundsComponent, storage: rewards_funds, event: RewardsFundsEvent);
   component!(path: RewardsDataComponent, storage: rewards_data, event: RewardsDataEvent);
 

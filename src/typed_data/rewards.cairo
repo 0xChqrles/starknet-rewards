@@ -5,8 +5,8 @@ use messages::typed_data::Message;
 // locals
 use rewards::rewards::interface::{ Reward, RewardContent, RewardNote };
 
-// sn_keccak('Reward(rewardModelId:u128,rewardContent:RewardContent)RewardContent(giver:felt252,note:RewardNote)RewardNote(s1:felt252,s2:felt252)')
-const REWARD_TYPE_HASH: felt252 = 0x62ef8571f40b4f272324577f6c01e3f75b7bd39b8c2876f650e3fe7db7c345;
+// sn_keccak('Reward(rewardModelId:felt252,rewardContent:RewardContent)RewardContent(giver:felt252,note:RewardNote)RewardNote(s1:felt252,s2:felt252)')
+const REWARD_TYPE_HASH: felt252 = 0x24f1356883dc7cca45131e5ba07cfefc5dedd465401da6416a2a4b93219109f;
 
 // sn_keccak('RewardContent(giver:felt252,note:RewardNote)RewardNote(s1:felt252,s2:felt252)')
 const REWARD_CONTENT_TYPE_HASH: felt252 = 0x298734ad87b879f2809f5435b2b5add61714ba40a18a1d51a4f6fd3c13ef28e;

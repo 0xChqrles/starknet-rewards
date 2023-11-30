@@ -82,7 +82,7 @@ fn test__add_reward_model_free() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('invalid.reward_model',))]
+#[should_panic(expected: ('data.invalid_reward_model',))]
 fn test__add_reward_model_invalid_image() {
   let mut state = setup();
 
@@ -92,7 +92,7 @@ fn test__add_reward_model_invalid_image() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('invalid.reward_model',))]
+#[should_panic(expected: ('data.invalid_reward_model',))]
 fn test__add_reward_model_invalid_name() {
   let mut state = setup();
 
@@ -153,7 +153,7 @@ fn test__add_reward_content_empty_note() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('invalid.reward_content',))]
+#[should_panic(expected: ('data.invalid_reward_content',))]
 fn test__add_reward_content_zero_giver() {
   let mut state = setup();
 

@@ -29,6 +29,15 @@ mod RewardsMessagesComponent {
   struct Storage {}
 
   //
+  // Errors
+  //
+
+  mod Errors {
+    const MINT_NOT_ALLOWED: felt252 = 'messages.reward_consumed';
+    const INVALID_SIGNATURE: felt252 = 'messages.invalid_reward_sig';
+  }
+
+  //
   // IRewardsMessages
   //
 
@@ -37,7 +46,7 @@ mod RewardsMessagesComponent {
     TContractState,
     +HasComponent<TContractState>,
     impl Messages: MessagesComponent::HasComponent<TContractState>,
-    +Drop<TContractState>
+    +Drop<TContractState>,
   > of interface::IRewardsMessages<ComponentState<TContractState>> {
     fn consume_valid_reward_from(
       ref self: ComponentState<TContractState>,
@@ -51,13 +60,13 @@ mod RewardsMessagesComponent {
       let hash = reward.compute_hash_from(:from, domain: DOMAIN());
 
       // assert voucher has not been already consumed and consume it
-      assert(!messages_component._is_message_consumed(:hash), 'Reward already consumed');
+      assert(!messages_component._is_message_consumed(:hash), Errors::MINT_NOT_ALLOWED);
       messages_component._consume_message(:hash);
 
       // assert voucher signature is valid
       assert(
         messages_component._is_message_signature_valid(:hash, :signature, signer: from),
-        'Invalid reward signature'
+        Errors::INVALID_SIGNATURE
       );
     }
   }

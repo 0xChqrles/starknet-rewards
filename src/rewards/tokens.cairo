@@ -33,7 +33,7 @@ mod RewardsTokensComponent {
   //
 
   mod Errors {
-    const MINT_NOT_ALLOWED: felt252 = 'rewards.mint_not_allowed';
+    const MINT_NOT_ALLOWED: felt252 = 'tokens.mint_not_allowed';
   }
 
   //

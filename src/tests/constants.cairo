@@ -1,13 +1,13 @@
 use openzeppelin::token::erc20::dual20::DualCaseERC20;
 
 // locals
-use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote };
+use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote, Reward };
 
 mod VALID {
   // locals
   use rewards::rewards::data::RewardModelTrait;
 
-  use super::{ RewardModel, RewardContent, RewardNote, GIVER_1, GIVER_2 };
+  use super::{ RewardModel, RewardContent, RewardNote, Reward, GIVER_1, GIVER_2 };
   use super::super::utils::zeroable::RewardNoteZeroable;
 
   // reward models
@@ -21,7 +21,7 @@ mod VALID {
       },
       price: u256 {
         low: 'price low 1',
-        high: 'price low 1',
+        high: 'price high 1',
       },
     }
   }
@@ -96,6 +96,24 @@ mod VALID {
       note: RewardNoteZeroable::zero(),
     }
   }
+
+  // Rewards
+
+  fn REWARD_1() -> Reward {
+    Reward {
+      reward_content: REWARD_CONTENT_1(),
+      reward_model_id: REWARD_MODEL_1_ID(),
+    }
+  }
+
+  // Signatures
+
+  fn REWARD_1_SIGNATURE() -> Span<felt252> {
+    array![
+      1304985062383234317538339338379740237805924127877502719783188269952046375762,
+      2130139097816882774832901588046134944850860150509349873416649075645414511534,
+    ].span()
+  }
 }
 
 mod INVALID {
@@ -155,8 +173,19 @@ fn FUNDS() -> starknet::ContractAddress {
   starknet::contract_address_const::<'FUNDS'>()
 }
 
+fn SIGNER() -> starknet::ContractAddress {
+  starknet::contract_address_const::<1>()
+}
+
 // contracts
 
 fn ETHER() -> DualCaseERC20 {
   DualCaseERC20 { contract_address: starknet::contract_address_const::<1>() }
 }
+
+// misc
+
+const CHAIN_ID: felt252 = 'SN_MAIN';
+
+// private key = 4321
+const PUBLIC_KEY: felt252 = 0x1766831fbcbc258a953dd0c0505ecbcd28086c673355c7a219bc031b710b0d6;
