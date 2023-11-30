@@ -1,6 +1,7 @@
 #[starknet::component]
 mod RewardsTokensComponent {
-  use array::SpanTrait;
+  use rewards::rewards::interface::IRewardsData;
+use array::SpanTrait;
 
   use openzeppelin::token::erc20::dual20::{ DualCaseERC20, DualCaseERC20Trait };
 
@@ -16,7 +17,7 @@ mod RewardsTokensComponent {
   use rewards::rewards::data::RewardsDataComponent::InternalTrait as RewardsDataInternalTrait;
 
   use rewards::rewards::interface;
-  use rewards::rewards::interface::{ IRewardsMessages, RewardDispatch };
+  use rewards::rewards::interface::{ IRewardsMessages, Reward, RewardDispatch };
 
   //
   // Storage
@@ -52,6 +53,21 @@ mod RewardsTokensComponent {
   > of interface::IRewardsTokens<ComponentState<TContractState>> {
     fn owner_of(self: @ComponentState<TContractState>, reward_id: u256) -> felt252 {
       self._rewards_owners.read(reward_id)
+    }
+
+    fn reward(self: @ComponentState<TContractState>, reward_id: u256) -> Reward {
+      let contract = self.get_contract();
+      let rewards_data_component = RewardsData::get_component(contract);
+
+      // extract ids
+      let reward_model_id = reward_id.low;
+      let reward_content_id = reward_id.high;
+
+      // build reward
+      Reward {
+        reward_model_id,
+        reward_content: rewards_data_component.reward_content(:reward_content_id),
+      }
     }
 
     fn dispatch_reward(

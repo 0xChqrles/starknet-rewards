@@ -15,6 +15,8 @@ use super::mocks::rewards_tokens_mock::RewardsTokensMock;
 use super::constants;
 use super::utils;
 
+use super::utils::partial_eq::RewardEq;
+
 use rewards::typed_data::rewards::RewardDispatch;
 
 fn STATE() -> RewardsTokensMock::ContractState {
@@ -62,4 +64,15 @@ fn test_owner_of() {
   let state = setup();
 
   assert(state.owner_of(reward_id: constants::VALID::REWARD_CHEAP_ID()) == constants::DOMAIN_1, 'Invalid owner')
+}
+
+#[test]
+#[available_gas(20000000)]
+fn test_reward() {
+  let state = setup();
+
+  assert(
+    state.reward(reward_id: constants::VALID::REWARD_CHEAP_ID()) == constants::VALID::REWARD_CHEAP(),
+    'Invalid reward'
+  )
 }

@@ -1,7 +1,7 @@
 use traits::PartialEq;
 
 // locals
-use rewards::rewards::interface::{ RewardContent, RewardNote, RewardModel };
+use rewards::rewards::interface::{ RewardContent, RewardNote, RewardModel, Reward };
 
 // We avoid using to many bitwise operators
 impl RewardContentEq of PartialEq<RewardContent> {
@@ -51,6 +51,23 @@ impl RewardModelEq of PartialEq<RewardModel> {
 
   #[inline(always)]
   fn ne(lhs: @RewardModel, rhs: @RewardModel) -> bool {
+    !(lhs == rhs)
+  }
+}
+
+impl RewardEq of PartialEq<Reward> {
+  fn eq(lhs: @Reward, rhs: @Reward) -> bool {
+    if (*lhs.reward_content != *rhs.reward_content) {
+      false
+    } else if (*lhs.reward_model_id != *rhs.reward_model_id) {
+      false
+    } else {
+      true
+    }
+  }
+
+  #[inline(always)]
+  fn ne(lhs: @Reward, rhs: @Reward) -> bool {
     !(lhs == rhs)
   }
 }
