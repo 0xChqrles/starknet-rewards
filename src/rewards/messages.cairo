@@ -16,8 +16,8 @@ mod RewardsMessagesComponent {
 
   // locals
   use rewards::rewards::interface;
-  use rewards::rewards::interface::Reward;
-  use rewards::typed_data::rewards::RewardMessage;
+  use rewards::rewards::interface::RewardDispatch;
+  use rewards::typed_data::rewards::RewardDispatchMessage;
 
   use super::DOMAIN;
 
@@ -48,16 +48,17 @@ mod RewardsMessagesComponent {
     impl Messages: MessagesComponent::HasComponent<TContractState>,
     +Drop<TContractState>,
   > of interface::IRewardsMessages<ComponentState<TContractState>> {
-    fn consume_valid_reward_from(
+    fn consume_valid_reward_dispatch(
       ref self: ComponentState<TContractState>,
-      from: starknet::ContractAddress,
-      reward: Reward,
+      reward_dispatch: RewardDispatch,
       signature: Span<felt252>
     ) {
       let mut messages_component = get_dep_component_mut!(ref self, Messages);
 
+      let dispatcher = reward_dispatch.reward.reward_content.dispatcher;
+
       // compute voucher message hash
-      let hash = reward.compute_hash_from(:from, domain: DOMAIN());
+      let hash = reward_dispatch.compute_hash_from(from: dispatcher, domain: DOMAIN());
 
       // assert voucher has not been already consumed and consume it
       assert(!messages_component._is_message_consumed(:hash), Errors::MINT_NOT_ALLOWED);
@@ -65,7 +66,7 @@ mod RewardsMessagesComponent {
 
       // assert voucher signature is valid
       assert(
-        messages_component._is_message_signature_valid(:hash, :signature, signer: from),
+        messages_component._is_message_signature_valid(:hash, :signature, signer: dispatcher),
         Errors::INVALID_SIGNATURE
       );
     }

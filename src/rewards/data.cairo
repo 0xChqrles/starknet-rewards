@@ -139,6 +139,6 @@ trait RewardContentTrait {
 impl RewardContentImpl of RewardContentTrait {
   fn is_valid(self: RewardContent) -> bool {
     // allow reward contents with an empty note
-    !self.giver.is_zero()
+    !self.dispatcher.is_zero()
   }
 }

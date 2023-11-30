@@ -154,9 +154,9 @@ fn test__add_reward_content_empty_note() {
 #[test]
 #[available_gas(20000000)]
 #[should_panic(expected: ('data.invalid_reward_content',))]
-fn test__add_reward_content_zero_giver() {
+fn test__add_reward_content_zero_dispatcher() {
   let mut state = setup();
 
   // add reward content
-  let rewards_content_id = state.rewards_data._add_reward_content(constants::INVALID::REWARD_CONTENT_ZERO_GIVER());
+  let rewards_content_id = state.rewards_data._add_reward_content(constants::INVALID::REWARD_CONTENT_ZERO_DISPATCHER());
 }

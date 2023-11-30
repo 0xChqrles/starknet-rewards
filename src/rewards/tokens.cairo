@@ -16,7 +16,7 @@ mod RewardsTokensComponent {
   use rewards::rewards::data::RewardsDataComponent::InternalTrait as RewardsDataInternalTrait;
 
   use rewards::rewards::interface;
-  use rewards::rewards::interface::{ IRewardsMessages, Reward };
+  use rewards::rewards::interface::{ IRewardsMessages, RewardDispatch };
 
   //
   // Storage
@@ -54,10 +54,10 @@ mod RewardsTokensComponent {
       self._rewards_owners.read(reward_id)
     }
 
-    fn send_reward(
+    fn dispatch_reward(
       ref self: ComponentState<TContractState>,
       to_domain: felt252,
-      reward: Reward,
+      reward_dispatch: RewardDispatch,
       signature: Span<felt252>
     ) -> u256 {
       let caller = starknet::get_caller_address();
@@ -66,18 +66,20 @@ mod RewardsTokensComponent {
       let mut rewards_funds_component = get_dep_component_mut!(ref self, RewardsFunds);
       let mut rewards_data_component = get_dep_component_mut!(ref self, RewardsData);
 
+      let reward = reward_dispatch.reward;
+
       // verify signature
       if (signature.is_empty()) {
-        // if no signature is supplied, make sure the caller is the giver
-        assert(reward.reward_content.giver == caller, Errors::MINT_NOT_ALLOWED);
+        // if no signature is supplied, make sure the caller is the dispatcher
+        assert(reward.reward_content.dispatcher == caller, Errors::MINT_NOT_ALLOWED);
       } else {
         // verify and consume signature
-        rewards_messages_component.consume_valid_reward_from(from: reward.reward_content.giver, :reward, :signature);
+        rewards_messages_component.consume_valid_reward_dispatch(:reward_dispatch, :signature);
       }
 
       // collect reward price (will revert if reward model does not exists)
       rewards_funds_component._collect_reward_price(
-        from: reward.reward_content.giver,
+        from: reward.reward_content.dispatcher,
         reward_model_id: reward.reward_model_id
       );
 

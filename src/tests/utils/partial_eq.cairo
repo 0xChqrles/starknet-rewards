@@ -6,7 +6,7 @@ use rewards::rewards::interface::{ RewardContent, RewardNote, RewardModel };
 // We avoid using to many bitwise operators
 impl RewardContentEq of PartialEq<RewardContent> {
   fn eq(lhs: @RewardContent, rhs: @RewardContent) -> bool {
-    if (*lhs.giver != *rhs.giver) {
+    if (*lhs.dispatcher != *rhs.dispatcher) {
       false
     } else if (*lhs.note != *rhs.note) {
       false

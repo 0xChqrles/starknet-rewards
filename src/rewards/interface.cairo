@@ -9,7 +9,7 @@ struct RewardModel {
 
 #[derive(Serde, Copy, Drop)]
 struct RewardContent {
-  giver: starknet::ContractAddress,
+  dispatcher: starknet::ContractAddress,
   note: RewardNote, // can be empty
 }
 
@@ -25,6 +25,12 @@ struct Reward {
   reward_content: RewardContent
 }
 
+#[derive(Serde, Copy, Drop)]
+struct RewardDispatch {
+  to_domain: felt252, // Starknet ID domain
+  reward: Reward,
+}
+
 //
 // Interfaces
 //
@@ -33,7 +39,12 @@ struct Reward {
 trait IRewardsTokens<TState> {
   fn owner_of(self: @TState, reward_id: u256) -> felt252;
 
-  fn send_reward(ref self: TState, to_domain: felt252, reward: Reward, signature: Span<felt252>) -> u256;
+  fn dispatch_reward(
+    ref self: TState,
+    to_domain: felt252,
+    reward_dispatch: RewardDispatch,
+    signature: Span<felt252>
+  ) -> u256;
 }
 
 #[starknet::interface]
@@ -45,10 +56,5 @@ trait IRewardsData<TState> {
 
 #[starknet::interface]
 trait IRewardsMessages<TState> {
-  fn consume_valid_reward_from(
-    ref self: TState,
-    from: starknet::ContractAddress,
-    reward: Reward,
-    signature: Span<felt252>
-  );
+  fn consume_valid_reward_dispatch(ref self: TState, reward_dispatch: RewardDispatch, signature: Span<felt252>);
 }

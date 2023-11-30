@@ -145,10 +145,10 @@ fn test__withdraw() {
   testing::set_contract_address(constants::FUNDS());
 
   // withdraw
-  state.rewards_funds._withdraw(recipient: constants::GIVER_1());
+  state.rewards_funds._withdraw(recipient: constants::DISPATCHER_1());
 
-  assert(constants::ETHER().balance_of(constants::GIVER_1()) == amount, 'Invalid giver1 balance after');
-  assert(constants::ETHER().balance_of(constants::FUNDS()).is_zero(), 'Invalid funds balance after');
+  assert(constants::ETHER().balance_of(constants::DISPATCHER_1()) == amount, 'Bad dispatcher balance after');
+  assert(constants::ETHER().balance_of(constants::FUNDS()).is_zero(), 'Bad funds balance after');
 }
 
 #[test]
@@ -158,10 +158,10 @@ fn test__withdraw_zero() {
   let ether = constants::ETHER();
 
   // withdraw
-  state.rewards_funds._withdraw(recipient: constants::GIVER_1());
+  state.rewards_funds._withdraw(recipient: constants::DISPATCHER_1());
 
-  assert(constants::ETHER().balance_of(constants::GIVER_1()).is_zero(), 'Invalid giver1 balance after');
-  assert(constants::ETHER().balance_of(constants::FUNDS()).is_zero(), 'Invalid funds balance after');
+  assert(constants::ETHER().balance_of(constants::DISPATCHER_1()).is_zero(), 'Bad dispatcher balance after');
+  assert(constants::ETHER().balance_of(constants::FUNDS()).is_zero(), 'Bad funds balance after');
 }
 
 #[test]

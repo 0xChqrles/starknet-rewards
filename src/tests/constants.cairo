@@ -1,13 +1,13 @@
 use openzeppelin::token::erc20::dual20::DualCaseERC20;
 
 // locals
-use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote, Reward };
+use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote, Reward, RewardDispatch };
 
 mod VALID {
   // locals
   use rewards::rewards::data::RewardModelTrait;
 
-  use super::{ RewardModel, RewardContent, RewardNote, Reward, GIVER_1, GIVER_2 };
+  use super::{ RewardModel, RewardContent, RewardNote, Reward, RewardDispatch, SIGNER, DISPATCHER_1, DISPATCHER_2 };
   use super::super::utils::zeroable::RewardNoteZeroable;
 
   // reward models
@@ -72,7 +72,7 @@ mod VALID {
 
   fn REWARD_CONTENT_1() -> RewardContent {
     RewardContent {
-      giver: GIVER_1(),
+      dispatcher: SIGNER(),
       note: RewardNote {
         s1: 1,
         s2: 2,
@@ -82,7 +82,7 @@ mod VALID {
 
   fn REWARD_CONTENT_2() -> RewardContent {
     RewardContent {
-      giver: GIVER_2(),
+      dispatcher: DISPATCHER_2(),
       note: RewardNote {
         s1: 's1',
         s2: 's2',
@@ -92,7 +92,7 @@ mod VALID {
 
   fn REWARD_CONTENT_EMPTY_NOTE() -> RewardContent {
     RewardContent {
-      giver: GIVER_1(),
+      dispatcher: DISPATCHER_1(),
       note: RewardNoteZeroable::zero(),
     }
   }
@@ -106,12 +106,21 @@ mod VALID {
     }
   }
 
+  // Rewards dispatch
+
+  fn REWARD_DISPATCH_1() -> RewardDispatch {
+    RewardDispatch {
+      to_domain: 'domain.stark',
+      reward: REWARD_1(),
+    }
+  }
+
   // Signatures
 
   fn REWARD_1_SIGNATURE() -> Span<felt252> {
     array![
-      1304985062383234317538339338379740237805924127877502719783188269952046375762,
-      2130139097816882774832901588046134944850860150509349873416649075645414511534,
+      400701612205818067500795740381573555031969930447556177353353553926194722088,
+      365364548298767573866700114516106005143784487059591208664227687992547483941,
     ].span()
   }
 }
@@ -140,9 +149,9 @@ mod INVALID {
 
   // reward contents
 
-  fn REWARD_CONTENT_ZERO_GIVER() -> RewardContent {
+  fn REWARD_CONTENT_ZERO_DISPATCHER() -> RewardContent {
     RewardContent {
-      giver: ZERO(),
+      dispatcher: ZERO(),
       note: RewardNote {
         s1: 1,
         s2: 1,
@@ -157,12 +166,12 @@ fn OWNER() -> starknet::ContractAddress {
   starknet::contract_address_const::<'OWNER'>()
 }
 
-fn GIVER_1() -> starknet::ContractAddress {
-  starknet::contract_address_const::<'GIVER_1'>()
+fn DISPATCHER_1() -> starknet::ContractAddress {
+  starknet::contract_address_const::<'DISPATCHER_1'>()
 }
 
-fn GIVER_2() -> starknet::ContractAddress {
-  starknet::contract_address_const::<'GIVER_2'>()
+fn DISPATCHER_2() -> starknet::ContractAddress {
+  starknet::contract_address_const::<'DISPATCHER_2'>()
 }
 
 fn ZERO() -> starknet::ContractAddress {

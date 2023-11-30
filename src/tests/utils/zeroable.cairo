@@ -27,7 +27,7 @@ impl RewardModelZeroable of Zeroable<RewardModel> {
 impl RewardContentZeroable of Zeroable<RewardContent> {
   fn zero() -> RewardContent {
     RewardContent {
-      giver: starknet::contract_address_const::<0>(),
+      dispatcher: starknet::contract_address_const::<0>(),
       note: RewardNoteZeroable::zero(),
     }
   }
