@@ -39,12 +39,7 @@ struct RewardDispatch {
 trait IRewardsTokens<TState> {
   fn owner_of(self: @TState, reward_id: u256) -> felt252;
 
-  fn dispatch_reward(
-    ref self: TState,
-    to_domain: felt252,
-    reward_dispatch: RewardDispatch,
-    signature: Span<felt252>
-  ) -> u256;
+  fn dispatch_reward(ref self: TState, reward_dispatch: RewardDispatch, signature: Span<felt252>) -> u256;
 }
 
 #[starknet::interface]

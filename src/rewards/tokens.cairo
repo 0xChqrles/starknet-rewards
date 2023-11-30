@@ -56,7 +56,6 @@ mod RewardsTokensComponent {
 
     fn dispatch_reward(
       ref self: ComponentState<TContractState>,
-      to_domain: felt252,
       reward_dispatch: RewardDispatch,
       signature: Span<felt252>
     ) -> u256 {
@@ -92,8 +91,8 @@ mod RewardsTokensComponent {
         high: reward_content_id,
       };
 
-      // mint token
-      self._add_reward(:to_domain, :token_id);
+      // "mint" token
+      self._add_reward(to_domain: reward_dispatch.to_domain, :token_id);
 
       // return token ID
       token_id

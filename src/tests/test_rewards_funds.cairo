@@ -2,11 +2,7 @@ use debug::PrintTrait;
 use zeroable::Zeroable;
 use starknet::testing;
 
-use openzeppelin::utils::serde::SerializedAppend;
-
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-
-use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
 
 use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
 
@@ -29,36 +25,19 @@ fn STATE() -> RewardsFundsMock::ContractState {
 fn setup() -> RewardsFundsMock::ContractState {
   let mut state = STATE();
 
-  testing::set_contract_address(constants::FUNDS());
+  // setup ether - 0x2
+  let ether_contract_address = utils::setup_ether(
+    recipient: constants::OWNER(),
+    expected_address: constants::ETHER_1().contract_address
+  );
 
-  let ether_contract_address = setup_ether();
-  // make sure the contract has been deployed with the right address
-  assert(ether_contract_address == constants::ETHER().contract_address, 'Bad deployment order');
-
-  // allow reward funds to spend owner's ETH
-  testing::set_contract_address(constants::OWNER());
-
-  let owner_balance = constants::ETHER().balance_of(constants::OWNER());
-  constants::ETHER().approve(spender: constants::FUNDS(), amount: owner_balance);
-
-  // set funds as the contract address back
+  // set funds as the contract address
   testing::set_contract_address(constants::FUNDS());
 
   state.rewards_data._add_reward_model(constants::VALID::REWARD_MODEL_1());
   state.rewards_funds.initializer(ether_contract_address_: ether_contract_address);
 
   state
-}
-
-fn setup_ether() -> starknet::ContractAddress {
-  let mut calldata = array![];
-
-  calldata.append_serde('Ether');
-  calldata.append_serde('ETH');
-  calldata.append_serde(1_000_000_000_000_000_000_u256); // 1 ETH
-  calldata.append_serde(constants::OWNER());
-
-  utils::deploy(SnakeERC20Mock::TEST_CLASS_HASH, calldata)
 }
 
 //
@@ -71,7 +50,7 @@ fn setup_ether() -> starknet::ContractAddress {
 #[available_gas(20000000)]
 fn test__collect_reward_price() {
   let mut state = setup();
-  let ether = constants::ETHER();
+  let ether = constants::ETHER_1();
   let reward_model = constants::VALID::REWARD_MODEL_CHEAP();
 
   let owner_balance_before = ether.balance_of(constants::OWNER());
@@ -84,11 +63,11 @@ fn test__collect_reward_price() {
   state.rewards_funds._collect_reward_price(from: constants::OWNER(), :reward_model_id);
 
   assert(
-    constants::ETHER().balance_of(constants::OWNER()) == owner_balance_before - reward_model.price,
+    constants::ETHER_1().balance_of(constants::OWNER()) == owner_balance_before - reward_model.price,
     'Invalid owner balance after'
   );
   assert(
-    constants::ETHER().balance_of(constants::FUNDS()) == funds_balance_before + reward_model.price,
+    constants::ETHER_1().balance_of(constants::FUNDS()) == funds_balance_before + reward_model.price,
     'Invalid funds balance after'
   );
 }
@@ -97,7 +76,7 @@ fn test__collect_reward_price() {
 #[available_gas(20000000)]
 fn test__collect_reward_price_free_price() {
   let mut state = setup();
-  let ether = constants::ETHER();
+  let ether = constants::ETHER_1();
   let reward_model = constants::VALID::REWARD_MODEL_FREE();
 
   let owner_balance_before = ether.balance_of(constants::OWNER());
@@ -109,8 +88,8 @@ fn test__collect_reward_price_free_price() {
   // collect free reward price
   state.rewards_funds._collect_reward_price(from: constants::OWNER(), :reward_model_id);
 
-  assert(constants::ETHER().balance_of(constants::OWNER()) == owner_balance_before, 'Invalid owner balance after');
-  assert(constants::ETHER().balance_of(constants::FUNDS()) == funds_balance_before, 'Invalid funds balance after');
+  assert(constants::ETHER_1().balance_of(constants::OWNER()) == owner_balance_before, 'Invalid owner balance after');
+  assert(constants::ETHER_1().balance_of(constants::FUNDS()) == funds_balance_before, 'Invalid funds balance after');
 }
 
 #[test]
@@ -118,7 +97,7 @@ fn test__collect_reward_price_free_price() {
 #[should_panic(expected: ('funds.invalid_rewards_model',))]
 fn test__collect_reward_price_invalid_reward_model_id() {
   let mut state = setup();
-  let ether = constants::ETHER();
+  let ether = constants::ETHER_1();
 
   let owner_balance_before = ether.balance_of(constants::OWNER());
   let funds_balance_before = ether.balance_of(constants::FUNDS());
@@ -136,7 +115,7 @@ fn test__collect_reward_price_invalid_reward_model_id() {
 #[available_gas(20000000)]
 fn test__withdraw() {
   let mut state = setup();
-  let ether = constants::ETHER();
+  let ether = constants::ETHER_1();
   let amount = 1_000;
 
   // send a few ETH to the funds
@@ -147,21 +126,21 @@ fn test__withdraw() {
   // withdraw
   state.rewards_funds._withdraw(recipient: constants::DISPATCHER_1());
 
-  assert(constants::ETHER().balance_of(constants::DISPATCHER_1()) == amount, 'Bad dispatcher balance after');
-  assert(constants::ETHER().balance_of(constants::FUNDS()).is_zero(), 'Bad funds balance after');
+  assert(constants::ETHER_1().balance_of(constants::DISPATCHER_1()) == amount, 'Bad dispatcher balance after');
+  assert(constants::ETHER_1().balance_of(constants::FUNDS()).is_zero(), 'Bad funds balance after');
 }
 
 #[test]
 #[available_gas(20000000)]
 fn test__withdraw_zero() {
   let mut state = setup();
-  let ether = constants::ETHER();
+  let ether = constants::ETHER_1();
 
   // withdraw
   state.rewards_funds._withdraw(recipient: constants::DISPATCHER_1());
 
-  assert(constants::ETHER().balance_of(constants::DISPATCHER_1()).is_zero(), 'Bad dispatcher balance after');
-  assert(constants::ETHER().balance_of(constants::FUNDS()).is_zero(), 'Bad funds balance after');
+  assert(constants::ETHER_1().balance_of(constants::DISPATCHER_1()).is_zero(), 'Bad dispatcher balance after');
+  assert(constants::ETHER_1().balance_of(constants::FUNDS()).is_zero(), 'Bad funds balance after');
 }
 
 #[test]
@@ -169,7 +148,7 @@ fn test__withdraw_zero() {
 #[should_panic(expected: ('funds.withdraw_to_zero',))]
 fn test__withdraw_to_zero() {
   let mut state = setup();
-  let ether = constants::ETHER();
+  let ether = constants::ETHER_1();
 
   // withdraw
   state.rewards_funds._withdraw(recipient: constants::ZERO());

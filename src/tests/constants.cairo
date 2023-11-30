@@ -7,7 +7,17 @@ mod VALID {
   // locals
   use rewards::rewards::data::RewardModelTrait;
 
-  use super::{ RewardModel, RewardContent, RewardNote, Reward, RewardDispatch, SIGNER, DISPATCHER_1, DISPATCHER_2 };
+  use super::{
+    RewardModel,
+    RewardContent,
+    RewardNote,
+    Reward,
+    RewardDispatch,
+    SIGNER,
+    DISPATCHER_1,
+    DISPATCHER_2,
+    DOMAIN_1,
+  };
   use super::super::utils::zeroable::RewardNoteZeroable;
 
   // reward models
@@ -64,6 +74,10 @@ mod VALID {
     REWARD_MODEL_2().id()
   }
 
+  fn REWARD_MODEL_CHEAP_ID() -> u128 {
+    REWARD_MODEL_CHEAP().id()
+  }
+
   fn REWARD_MODEL_FREE_ID() -> u128 {
     REWARD_MODEL_FREE().id()
   }
@@ -106,21 +120,56 @@ mod VALID {
     }
   }
 
+  fn REWARD_CHEAP() -> Reward {
+    Reward {
+      reward_content: REWARD_CONTENT_1(),
+      reward_model_id: REWARD_MODEL_CHEAP_ID(),
+    }
+  }
+
+  fn REWARD_1_ID() -> u256 {
+    u256 {
+      low: REWARD_1().reward_model_id,
+      high: 1,
+    }
+  }
+
+  fn REWARD_CHEAP_ID() -> u256 {
+    u256 {
+      low: REWARD_CHEAP().reward_model_id,
+      high: 1,
+    }
+  }
+
   // Rewards dispatch
 
   fn REWARD_DISPATCH_1() -> RewardDispatch {
     RewardDispatch {
-      to_domain: 'domain.stark',
+      to_domain: DOMAIN_1,
       reward: REWARD_1(),
+    }
+  }
+
+  fn REWARD_DISPATCH_CHEAP() -> RewardDispatch {
+    RewardDispatch {
+      to_domain: DOMAIN_1,
+      reward: REWARD_CHEAP(),
     }
   }
 
   // Signatures
 
-  fn REWARD_1_SIGNATURE() -> Span<felt252> {
+  fn REWARD_DISPATCH_1_SIGNATURE() -> Span<felt252> {
     array![
       400701612205818067500795740381573555031969930447556177353353553926194722088,
       365364548298767573866700114516106005143784487059591208664227687992547483941,
+    ].span()
+  }
+
+  fn REWARD_DISPATCH_CHEAP_SIGNATURE() -> Span<felt252> {
+    array![
+      1012090352051962097251154003260138393603512205569533230429964552334286545629,
+      221569790028110632923996560170666419813127993290399810878702125813866923743,
     ].span()
   }
 }
@@ -188,8 +237,16 @@ fn SIGNER() -> starknet::ContractAddress {
 
 // contracts
 
-fn ETHER() -> DualCaseERC20 {
-  DualCaseERC20 { contract_address: starknet::contract_address_const::<1>() }
+fn ETHER(contract_address: starknet::ContractAddress) -> DualCaseERC20 {
+  DualCaseERC20 { contract_address }
+}
+
+fn ETHER_1() -> DualCaseERC20 {
+  ETHER(starknet::contract_address_const::<1>())
+}
+
+fn ETHER_2() -> DualCaseERC20 {
+  ETHER(starknet::contract_address_const::<2>())
 }
 
 // misc
@@ -198,3 +255,5 @@ const CHAIN_ID: felt252 = 'SN_MAIN';
 
 // private key = 4321
 const PUBLIC_KEY: felt252 = 0x1766831fbcbc258a953dd0c0505ecbcd28086c673355c7a219bc031b710b0d6;
+
+const DOMAIN_1: felt252 = 'domain.stark';

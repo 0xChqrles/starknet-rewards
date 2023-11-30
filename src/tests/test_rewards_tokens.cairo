@@ -6,7 +6,9 @@ use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
 
 // locals
+use rewards::rewards::funds::RewardsFundsComponent::InternalTrait as RewardsFundsInternalTrait;
 use rewards::rewards::tokens::RewardsTokensComponent::InternalTrait as RewardsTokensInternalTrait;
+use rewards::rewards::data::RewardsDataComponent::InternalTrait as RewardsDataInternalTrait;
 
 use super::mocks::rewards_tokens_mock::RewardsTokensMock;
 
@@ -19,22 +21,45 @@ fn STATE() -> RewardsTokensMock::ContractState {
   RewardsTokensMock::contract_state_for_testing()
 }
 
-// fn setup() -> RewardsTokensMock::ContractState {
-//   let mut state = STATE();
+fn setup() -> RewardsTokensMock::ContractState {
+  let mut state = STATE();
 
-//   state.send_reward(to_domain: constants::DOMAIN_1(), reward: constants::VALID::REWARD_1(), signature: constants::VALID::REWARD_1_SIGNATURE());
+  // setup chain id to compute hashes
+  testing::set_chain_id(constants::CHAIN_ID);
 
-//   state
-// }
+  // setup signer - 0x1
+  let signer = utils::setup_signer(
+    public_key: constants::PUBLIC_KEY,
+    expected_address: constants::SIGNER()
+  );
 
-// //
-// // Tests
-// //
+  // setup ether - 0x2
+  let ether_contract_address = utils::setup_ether(
+    recipient: signer.contract_address,
+    expected_address: constants::ETHER_2().contract_address
+  );
 
-// #[test]
-// #[available_gas(20000000)]
-// fn test_owner_of() {
-//   let state = setup();
+  // set funds as the contract address
+  testing::set_contract_address(constants::FUNDS());
 
-//   assert(state.owner_of(constants::REWARD_1_ID()) == constants::DOMAIN_1(), 'Invalid owner')
-// }
+  state.rewards_funds.initializer(ether_contract_address_: ether_contract_address);
+  state.rewards_data._add_reward_model(constants::VALID::REWARD_MODEL_CHEAP());
+  state.dispatch_reward(
+    reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP(),
+    signature: constants::VALID::REWARD_DISPATCH_CHEAP_SIGNATURE()
+  );
+
+  state
+}
+
+//
+// Tests
+//
+
+#[test]
+#[available_gas(20000000)]
+fn test_owner_of() {
+  let state = setup();
+
+  assert(state.owner_of(reward_id: constants::VALID::REWARD_CHEAP_ID()) == constants::DOMAIN_1, 'Invalid owner')
+}
