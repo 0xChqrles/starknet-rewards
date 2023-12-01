@@ -1,8 +1,8 @@
-use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
-use core::zeroable::Zeroable;
-use rewards::rewards::interface::IRewardsTokens;
+use zeroable::Zeroable;
 use debug::PrintTrait;
 use starknet::testing;
+
+use openzeppelin::token::erc20::dual20::DualCaseERC20Trait;
 
 use openzeppelin::account::AccountABIDispatcher;
 use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
@@ -12,7 +12,7 @@ use rewards::rewards::funds::RewardsFundsComponent::InternalTrait as RewardsFund
 use rewards::rewards::tokens::RewardsTokensComponent::InternalTrait as RewardsTokensInternalTrait;
 use rewards::rewards::data::RewardsDataComponent::InternalTrait as RewardsDataInternalTrait;
 
-use rewards::rewards::interface::Reward;
+use rewards::rewards::interface::{ Reward, IRewardsTokens };
 
 use super::mocks::rewards_tokens_mock::RewardsTokensMock;
 
@@ -130,6 +130,9 @@ fn test_dispatch_reward_with_signature() {
   let signer_balance_before = ether.balance_of(account: constants::SIGNER_3());
   let funds_balance_before = ether.balance_of(account: constants::FUNDS());
 
+  // make sure the caller is not the signer
+  testing::set_caller_address(constants::OWNER());
+
   state.dispatch_reward(
     reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(),
     signature: constants::VALID::REWARD_DISPATCH_CHEAP_2_SIGNATURE()
@@ -139,7 +142,7 @@ fn test_dispatch_reward_with_signature() {
   assert(state.owner_of(reward_id: constants::VALID::REWARD_CHEAP_2_ID()) == constants::DOMAIN_2, 'Invalid owner');
 
   assert(
-    ether.balance_of(constants::SIGNER()) == signer_balance_before - reward_model.price,
+    ether.balance_of(constants::SIGNER_3()) == signer_balance_before - reward_model.price,
     'Invalid owner balance after'
   );
   assert(
@@ -150,40 +153,80 @@ fn test_dispatch_reward_with_signature() {
 
 #[test]
 #[available_gas(20000000)]
-#[should_panic(expected: ('messages.reward_consumed',))]
-fn test_dispatch_reward_with_signature_twice() {
-  let mut state = setup();
-
-  state.dispatch_reward(
-    reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(),
-    signature: constants::VALID::REWARD_DISPATCH_CHEAP_2_SIGNATURE()
-  );
-  state.dispatch_reward(
-    reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(),
-    signature: constants::VALID::REWARD_DISPATCH_CHEAP_2_SIGNATURE()
-  );
-}
-
-#[test]
-#[available_gas(20000000)]
-fn test_dispatch_reward_with_invalid_signature() {
-  let mut state = setup();
-}
-
-#[test]
-#[available_gas(20000000)]
 fn test_dispatch_reward_without_signature() {
   let mut state = setup();
+  let ether = constants::ETHER_2();
+
+  let reward_model = constants::VALID::REWARD_MODEL_CHEAP();
+  let reward = constants::VALID::REWARD_CHEAP_2();
+
+  let signer_balance_before = ether.balance_of(account: constants::SIGNER_3());
+  let funds_balance_before = ether.balance_of(account: constants::FUNDS());
+
+  // make sure the caller is the signer
+  testing::set_caller_address(constants::SIGNER_3());
+
+  state.dispatch_reward(reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(), signature: array![].span());
+
+  assert(state.reward(reward_id: constants::VALID::REWARD_CHEAP_2_ID()) == reward, 'Invalid reward');
+  assert(state.owner_of(reward_id: constants::VALID::REWARD_CHEAP_2_ID()) == constants::DOMAIN_2, 'Invalid owner');
+
+  assert(
+    ether.balance_of(constants::SIGNER_3()) == signer_balance_before - reward_model.price,
+    'Invalid owner balance after'
+  );
+  assert(
+    ether.balance_of(constants::FUNDS()) == funds_balance_before + reward_model.price,
+    'Invalid funds balance after'
+  );
 }
 
 #[test]
 #[available_gas(20000000)]
 fn test_dispatch_reward_without_signature_twice() {
   let mut state = setup();
+  let ether = constants::ETHER_2();
+
+  let reward_model = constants::VALID::REWARD_MODEL_CHEAP();
+  let reward = constants::VALID::REWARD_CHEAP_2();
+
+  // increase reward_content_id
+  let mut reward_id_2 = constants::VALID::REWARD_CHEAP_2_ID();
+  reward_id_2.high += 1;
+
+  let signer_balance_before = ether.balance_of(account: constants::SIGNER_3());
+  let funds_balance_before = ether.balance_of(account: constants::FUNDS());
+
+  // make sure the caller is the signer
+  testing::set_caller_address(constants::SIGNER_3());
+
+  state.dispatch_reward(reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(), signature: array![].span());
+  state.dispatch_reward(reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(), signature: array![].span());
+
+  assert(state.reward(reward_id: constants::VALID::REWARD_CHEAP_2_ID()) == reward, 'Invalid reward');
+  assert(state.owner_of(reward_id: constants::VALID::REWARD_CHEAP_2_ID()) == constants::DOMAIN_2, 'Invalid owner');
+
+  assert(state.reward(reward_id: reward_id_2) == reward, 'Invalid reward');
+  assert(state.owner_of(reward_id: reward_id_2) == constants::DOMAIN_2, 'Invalid owner');
+
+  assert(
+    ether.balance_of(constants::SIGNER_3()) == signer_balance_before - reward_model.price * 2,
+    'Invalid owner balance after'
+  );
+  assert(
+    ether.balance_of(constants::FUNDS()) == funds_balance_before + reward_model.price * 2,
+    'Invalid funds balance after'
+  );
 }
 
 #[test]
 #[available_gas(20000000)]
+#[should_panic(expected: ('tokens.mint_not_allowed',))]
 fn test_dispatch_reward_without_signature_invalid() {
   let mut state = setup();
+
+  // make sure the caller is not the signer
+  testing::set_caller_address(constants::OWNER());
+
+  state.dispatch_reward(reward_dispatch: constants::VALID::REWARD_DISPATCH_CHEAP_2(), signature: array![].span());
 }

@@ -1,6 +1,7 @@
 #[starknet::component]
 mod RewardsTokensComponent {
-  use rewards::rewards::interface::IRewardsData;
+  use core::debug::PrintTrait;
+use rewards::rewards::interface::IRewardsData;
 use array::SpanTrait;
 
   use openzeppelin::token::erc20::dual20::{ DualCaseERC20, DualCaseERC20Trait };
