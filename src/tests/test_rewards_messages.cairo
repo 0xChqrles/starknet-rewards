@@ -27,7 +27,7 @@ fn setup() -> RewardsMessagesMock::ContractState {
   testing::set_chain_id(constants::CHAIN_ID);
 
   // setup signer - 0x1
-  let signer = utils::setup_signer(public_key: constants::PUBLIC_KEY, expected_address: constants::SIGNER());
+  let signer = utils::setup_signer(public_key: constants::SIGNER_PUBLIC_KEY, expected_address: constants::SIGNER());
 
   STATE()
 }

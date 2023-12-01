@@ -1,8 +1,8 @@
 use zeroable::Zeroable;
 
 // locals
-use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote };
-use super::partial_eq::{ RewardModelEq, RewardContentEq, RewardNoteEq };
+use rewards::rewards::interface::{ RewardModel, RewardContent, RewardNote, Reward };
+use super::partial_eq::{ RewardModelEq, RewardContentEq, RewardNoteEq, RewardEq };
 
 impl RewardModelZeroable of Zeroable<RewardModel> {
   fn zero() -> RewardModel {
@@ -59,5 +59,24 @@ impl RewardNoteZeroable of Zeroable<RewardNote> {
   #[inline(always)]
   fn is_non_zero(self: RewardNote) -> bool {
     self != RewardNoteZeroable::zero()
+  }
+}
+
+impl RewardZeroable of Zeroable<Reward> {
+  fn zero() -> Reward {
+    Reward {
+      reward_model_id: 0,
+      reward_content: RewardContentZeroable::zero(),
+    }
+  }
+
+  #[inline(always)]
+  fn is_zero(self: Reward) -> bool {
+    self == RewardZeroable::zero()
+  }
+
+  #[inline(always)]
+  fn is_non_zero(self: Reward) -> bool {
+    self != RewardZeroable::zero()
   }
 }
